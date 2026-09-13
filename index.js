@@ -21,8 +21,31 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 
-// Middleware
-app.use(cors());
+const allowedOrigins = [
+  "https://moveohealth.vercel.app",
+  "https://moveohealth.vercel.app/",
+  "http://localhost:5173",
+  "http://localhost:3000",
+  "http://localhost:5000",
+];
+const allowedorgi = allowedOrigins;
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (!origin) return callback(null, true);
+      if (
+        allowedOrigins.includes(origin) ||
+        allowedOrigins.includes(origin + "/") ||
+        allowedOrigins.includes(origin.replace(/\/$/, ""))
+      ) {
+        return callback(null, true);
+      }
+      return callback(null, true);
+    },
+    credentials: true,
+  })
+);
 app.use(express.json());
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
