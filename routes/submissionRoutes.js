@@ -35,14 +35,46 @@ const storage = multer.diskStorage({
 const upload = multer({
   storage,
   limits: { fileSize: 10 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    const allowedMimeTypes = [
+      "application/pdf",
+      "application/msword",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    ];
+    const allowedExts = [".pdf", ".doc", ".docx"];
+    const ext = path.extname(file.originalname).toLowerCase();
+
+    if (allowedMimeTypes.includes(file.mimetype) || allowedExts.includes(ext)) {
+      return cb(null, true);
+    }
+
+    return cb(new Error("Only PDF, DOC, or DOCX files are allowed."));
+  },
 });
 
+const handleUploadError = (req, res, next) => {
+  upload.single("resume")(req, res, (error) => {
+    if (!error) return next();
+
+    if (error instanceof multer.MulterError && error.code === "LIMIT_FILE_SIZE") {
+      return res.status(400).json({
+        success: false,
+        message: "File is too large. Please upload a resume up to 10MB.",
+      });
+    }
+
+    return res.status(400).json({
+      success: false,
+      message: error.message || "Failed to upload resume.",
+    });
+  });
+};
 const router = express.Router();
 
 // Public Submissions
 router.post("/contact", submitContact);
 router.post("/consultation", submitConsultation);
-router.post("/career", upload.single("resume"), submitCareer);
+router.post("/career", handleUploadError, submitCareer);
 
 // Admin Protected Retrieval & Deletion
 router.get("/contact", protectAdmin, getContacts);

@@ -7,6 +7,11 @@ import { Resend } from "resend";
 const JWT_SECRET = process.env.JWT_SECRET || "sourabh_admin_secret_key_12345";
 const ADMIN_EMAIL = "rishabhtiwarics@gmail.com";
 const DEFAULT_PASS = "admin@123";
+const FRONTEND_URL = (
+  process.env.FRONTEND_URL ||
+  process.env.CLIENT_URL ||
+  "https://moveohealth.vercel.app"
+).replace(/\/$/, "");
 
 const getResendClient = () => {
   return new Resend(process.env.RESEND_API_KEY || "dummy_key_to_prevent_crash");
@@ -93,7 +98,7 @@ export const forgotPassword = async (req, res) => {
 
     await admin.save();
 
-    const resetUrl = `http://localhost:5173/admin/reset-password/${resetToken}`;
+    const resetUrl = `${FRONTEND_URL}/admin/reset-password/${resetToken}`;
 
     // Send email using Resend API
     let emailStatus = "sent";
@@ -109,7 +114,7 @@ export const forgotPassword = async (req, res) => {
               
               <!-- Logo Header -->
               <div style="margin-bottom: 20px; text-align: center;">
-                <img src="https://sourabhkumar.vercel.app/img/moveO_logo.png" alt="MoveO Health Logo" style="max-width: 160px; height: auto; display: inline-block;" />
+                <img src="${FRONTEND_URL}/img/moveO_logo.png" alt="MoveO Health Logo" style="max-width: 160px; height: auto; display: inline-block;" />
                 <h2 style="font-size: 24px; font-weight: 800; color: #012F25; margin: 12px 0 4px 0; letter-spacing: -0.01em;">MoveO Health</h2>
                 <p style="font-size: 13px; font-weight: 600; color: #035D4E; margin: 0; text-transform: uppercase; letter-spacing: 0.08em;">Admin Portal Security</p>
               </div>
